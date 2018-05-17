@@ -68,7 +68,6 @@ def D(t, rhoM, proDict, dim): # 公式（19）
 def set_t(t):
 	return max(1, t)
 
-
 def judgement(rhoM, proDict,f_old, dim, threshold_values = (1e-7, 1e-7, 1e-7)):
 	grad_f = Grad_F(rhoM, proDict, dim)
 	grad_rho_grad = np.dot(np.dot(grad_f, rhoM),grad_f)

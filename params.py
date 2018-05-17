@@ -5,11 +5,14 @@ import numpy as np
 import configparser
 import argparse
 class Params(object):
-    def __init__(self, index_dir = 'E:/qiuchi/clueweb12/text_datasets/index',dataset_name = "2013", window_size = 5, max_dependency_count = 3,
+    def __init__(self, index_dir = 'E:/qiuchi/clueweb12/index',dataset_name = "2013", base_model = 'GQLM', include_interaction = False, expansion_type = 'quantum', window_size = 5, max_dependency_count = 3,
     original_expansion_ratio = 0.5, current_history_ratio = 0.8,initial_list_size = 100, reranking_list_size = 20, top_term_num = 50,
-    expanded_vocabulary_size = 20, dirichlet_mu = 1000):
+    expanded_vocabulary_size = 20, dirichlet_mu = 2500):
         self.index_dir = index_dir
         self.dataset_name = dataset_name
+        self.base_model = base_model
+        self.include_interaction = include_interaction
+        self.expansion_type = expansion_type
         self.window_size = window_size
         self.max_dependency_count = max_dependency_count
         self.original_expansion_ratio = original_expansion_ratio
@@ -19,6 +22,7 @@ class Params(object):
         self.top_term_num = top_term_num
         self.expanded_vocabulary_size = expanded_vocabulary_size
         self.dirichlet_mu = dirichlet_mu
+
 
     def parse_config(self, config_file_path):
         config = configparser.ConfigParser()
@@ -30,6 +34,15 @@ class Params(object):
 
         if 'dataset_name' in config_common:
             self.dataset_name = config_common['dataset_name']
+
+        if 'base_model' in config_common:
+            self.base_model = config_common['base_model']
+
+        if 'include_interaction' in config_common:
+            self.include_interaction = bool(config_common['include_interaction'])
+
+        if 'expansion_type' in config_common:
+            self.expansion_type = config_common['expansion_type']
 
         if 'window_size' in config_common:
             self.window_size = int(config_common['window_size'])
@@ -64,6 +77,9 @@ class Params(object):
         config_common = config['COMMON']
         config_common['index_dir'] = self.index_dir
         config_common['dataset_name'] = self.dataset_name
+        config_common['base_model'] = self.base_model
+        config_common['include_interaction'] = str(self.include_interaction)
+        config_common['expansion_type'] = self.expansion_type
         config_common['window_size'] = str(self.window_size)
         config_common['max_dependency_count'] = str(self.max_dependency_count)
         config_common['original_expansion_ratio'] = str(self.original_expansion_ratio)

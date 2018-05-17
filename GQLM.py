@@ -12,15 +12,15 @@ from QLM_utils import *
 
 class GQLM(object):
 
-	def __init__(self,lr = 1e-4, alpha = (0.5,0.5), tmax = 0.85, threshold_values = (1e-7,1e-7,1e-7)):
+	def __init__(self,lr = 1e-4, alpha = (0.5,0.5), tmax = 0.85, threshold_values = (1e-7,1e-7,1e-7), train_type = 'GQLM',max_iter = 15):
 		self.lr = lr
 		self.alpha = alpha
 		self.tmax = tmax
 		self.threshold_values = threshold_values
-
+		self.max_iter = max_iter
+		self.train_type = train_type
 	def prepare(self,dictionary, init_rho = None):
 		self.dictionary = dictionary
-
 		for onevalue in dictionary:
 			self.dim = dictionary[onevalue][1].shape[0]
 			break
@@ -32,6 +32,21 @@ class GQLM(object):
 		self.rhoM = self.init_rho
 
 	def train(self):
+		if self.train_type == 'GQLM':
+			self.train_global_convergence()
+		elif self.train_type == 'QLM':
+			self.train_RrhoR()
+	def train_RrhoR(self):
+		alpha = 0.8
+		f_old = 0
+		for i in range(self.max_iter):
+			R_rho_R = rho_tilde(self.rhoM, self.dictionary, self.dim)
+			self.rhoM = self.rhoM * (1-alpha) + R_rho_R* alpha
+			if not judgement(self.rhoM, self.dictionary,f_old,self.dim, self.threshold_values):
+				break
+			f_old = F(self.rhoM, self.dictionary)
+
+	def train_global_convergence(self):
 		# print('initial density matrix:{}'.format(np.trace(self.init_rho)))
 		# print('initial_score: {}'.format(F(self.rhoM, self.dictionary)))
 		iter_num = 1
@@ -67,7 +82,7 @@ class GQLM(object):
 
 			# print('iter {}: target function value {}'.format(iter_num,F(self.rhoM, self.dictionary)))
 			iter_num = iter_num+1
-			if(iter_num > 15):
+			if(iter_num > self.max_iter):
 				break
 		# print(self.rhoM)
 		self.max_value = F(self.rhoM, self.dictionary)
@@ -82,5 +97,5 @@ if __name__ == '__main__':
 	gqlm = GQLM()
 	gqlm.prepare(test_dict)
 
-	gqlm.train()
+	gqlm.train('GQLM')
 	print('The optimal density matrix is: {}\n The maximum value of the loglikelihood function is: {}\n'.format(gqlm.rhoM, gqlm.max_value))

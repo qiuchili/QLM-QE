@@ -60,9 +60,9 @@ class IndriAPI(object):
         return(tf)
 
 def main():
-    index_dir_path = "E:/qiuchi/clueweb12/text_datasets/index"
-    Indri = IndriAPI(index_dir_path)
-    print(Indri.indri.getCollectionDocCount())
+    index_dir_path = "E:/qiuchi/clueweb12/index"
+    indri = IndriAPI(index_dir_path)
+    print(indri.get_document_array(indri.get_doc_name(3)))
 
 if __name__ == '__main__':
     main()
